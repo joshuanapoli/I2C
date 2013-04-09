@@ -1,0 +1,420 @@
+ARM GAS  PROJECT/startup.s 			page 1
+
+
+   1              	/*************
+   2              	 * startup.s *
+   3              	 *************
+   4              	 * NXP LPC2103 essential reset and initialziation assembler code
+   5              	 * - initialization limited to items that MUST be done in assembler
+   6              	 * - setup the interrupt vector table
+   7              	 * - setup stack pointers
+   8              	 * - branch to main.c
+   9              	 	 - complete hardware initialization of items that CAN be done in C
+  10              	 	 - run main application (written in C)
+  11              	 */
+  12              	
+  13              	/* NXP LPC2103 initialization steps:
+  14              	 *
+  15              	 * When reset is released the NXP LCP2103 boot loader is executed from ROM.
+  16              	 *
+  17              	 * - The boot loader image is stored in an 8 KB "boot block" at 0x7FFFE000.
+  18              	 *
+  19              	 * - When the boot loader is running the interrupt vector table (first 64
+  20              	 *   bytes of the 32-bit address space: 0x00000000 to 0x00000003F) is mapped
+  21              	 *   to the start of the boot block 0x7FFFE000 to 0xFFFE03F).
+  22              	 *
+  23              	 * - As a result the reset vector (0x00000000) is fetched from the boot block
+  24              	 *   (0x7FFFE0000) which invokes the boot loader.
+  25              	 *
+  26              	 * The boot loader checks the reset state of the P0.14 pin (latched at reset).
+  27              	 *
+  28              	 * - IF P0.14 was asserted at reset the boot loader will continue to run and
+  29              	 *   can be used to load a new FLASH image via UART0 (using FlashMagic).
+  30              	 *
+  31              	 *     http://www.flashmagictool.com/
+  32              	 *
+  33              	 * - If P0.14 was NOT asserted at reset the boot loader will compute the 2's
+  34              	 *   compliment checksum of the interrupt vetor table contained in the FLASH
+  35              	 *   (64-bytes at 0x00000000 to 0x0000003F). The 2's compliment checksum must
+  36              	 *   match the checksum stored at 0x00000014 (computed and inserted by
+  37              	 *   FlashMagic).
+  38              	 *
+  39              	 * - If the checksum is valid then the boot loader remaps the interrupt vector
+  40              	 *   table to the FLASH image (0x00000000 to 0x0000003F) and the reset vector
+  41              	 *   defined in this file (startup.s) is executed. This starts execution of
+  42              	 *   the FLASH image.
+  43              	 */
+  44              	
+  45              	/* NXP LPC2103 RAM MAP
+  46              	 *
+  47              	 *   Size			= 0x00002000	(8 KBytes)
+  48              	 *   RAM bottom	= 0x40000000
+  49              	 *   RAM top		= 0x40001FFF
+  50              	 *
+  51              	 * NXP LPC2103 RAM usage
+  52              	 *
+  53              	 *	 0x40000000 - 0x4000001F	- RAM IRQ vectors						  32 bytes
+  54              	 *	 0x40000020 - 0x4000003F	- RAM IRQ jump table					  32 bytes
+  55              	 *	 0x40000040 - 0x4000011F	- Real Monitor							 224 bytes
+  56              	 *	 0x40000120 - 0x400001FF	- In-System Programming (ISP) commands	 224 bytes
+  57              	 *	 0x40000200 - 0x40001EDF	- RAM for general code usage			7392 bytes
+ARM GAS  PROJECT/startup.s 			page 2
+
+
+  58              	 *	 0x40001EE0 - 0x40001FDF	- In-System Programming (ISP) stack		 256 bytes
+  59              	 *	 0x40001FE0 - 0x40001FFF	- FLASH programming commands			  32 bytes
+  60              	 */
+  61              	
+  62              	/* External and global declarations */
+  63              		.extern	main
+  64              		.extern exit
+  65              	
+  66              		.extern	__bss_beg__
+  67              		.extern	__bss_end__
+  68              		.extern	__stack_end__
+  69              		.extern	__data_beg__
+  70              		.extern	__data_beg_src__
+  71              	
+  72              		.global	start
+  73              		.global endless_loop
+  74              	
+  75              	/* ARM processor modes: usage
+  76              	 *
+  77              	 * - USER: 			Not used (USER is a non-privelaged mode)
+  78              	 * - FIQ:			Fast interrupt (FIQ) service routine
+  79              	 * - IRQ:			Interrupt (IRQ) service routine(s)
+  80              	 * - SUPERVISOR:	Privelaged mode used by the FreeRTOS scheduler
+  81              	 * - ABORT:			Data abort OR instruction prefetch abort exception
+  82              	 * - SYSTEM:		Privelaged mode used by FreeRTOS tasks
+  83              	 * - UNDEFINED:		Undefined instruction exception
+  84              	 */
+  85              	 	.set	UND_STACK_SIZE,	0x00000004
+  86              		.set	ABT_STACK_SIZE,	0x00000004
+  87              		.set	FIQ_STACK_SIZE,	0x00000080
+  88              		.set	IRQ_STACK_SIZE,	0x00000080
+  89              		.set	SVC_STACK_SIZE,	0x00000080
+  90              	
+  91              	/* ARM CPU Mode bit defines - used in CPSR */
+  92              		.set	MODE_USR, 0x10
+  93              		.set	MODE_FIQ, 0x11
+  94              		.set	MODE_IRQ, 0x12
+  95              		.set	MODE_SVC, 0x13
+  96              		.set	MODE_ABT, 0x17
+  97              		.set	MODE_UND, 0x1B
+  98              		.set	MODE_SYS, 0x1F
+  99              	
+ 100              	/* CPSR interrupt mask bits
+ 101              	 * - I_BIT (bit 7)
+ 102              	 *		0 = IRQ disabled
+ 103              	 *		1 = IRQ enabled
+ 104              	 * - F_BIT (bit 6)
+ 105              	 *		0 = FIQ disabled
+ 106              	 *		1 = FIQ enabled
+ 107              	 */
+ 108              		.set	I_BIT, 0x80
+ 109              		.set	F_BIT, 0x40
+ 110              	
+ 111              	/* Assembler directives to generate ARM code */
+ 112              		.text
+ 113              		.arm
+ 114              		.align 0
+ARM GAS  PROJECT/startup.s 			page 3
+
+
+ 115              	
+ 116              	/* Startup code - executes after reset
+ 117              	 *
+ 118              	 * - The boot loader (described above) will execute the reset vector
+ 119              	 *   located at 0x0000000 (see "B _start" instruction in section .startup
+ 120              	 *   below).
+ 121              	 *
+ 122              	 * - The reset vector causes a jump (branch) to the user "start" below
+ 123              	 *   (_start).
+ 124              	 *
+ 125              	 * - The start code initializes the stacks for each of the ARM CPU operating
+ 126              	 *   modes and jumps (branches) to "main.c".
+ 127              	 *
+ 128              	 * NOTE: After a reset, the ARM CPU is in supervisor mode and the IRQ_MASK and
+ 129              	 *       FIQ_MASK bits in the CPSR are set (interrupts are disabled).
+ 130              	 */
+ 131              	start:
+ 132              	_start:
+ 133              	_mainCRTStartup:
+ 134              	
+ 135              	/* The __stack_end__ (.LC6) addresss is resolved by the linker.
+ 136              	 *
+ 137              	 * - see the "Literal Constant Pool" defined in this file
+ 138              	 */
+ 139 0000 B4009FE5 		LDR		R0, .LC6
+ 140              	
+ 141              	/* Initialize the stack for each ARM processor mode
+ 142              	 *
+ 143              	 * NOTE: User mode is NOT being used. System mode and User mode use the same
+ 144              	 *       registers and stack. However, System mode is a privelaged mode (can
+ 145              	 *       change CPSR mode bits) and User mode is not (cannot change CPSR mode
+ 146              	 *       bits).
+ 147              	 */
+ 148 0004 DBF021E3 		MSR		CPSR_c, #MODE_UND|I_BIT|F_BIT
+ 149 0008 00D0A0E1 		MOV		SP, R0
+ 150 000c 040040E2 		SUB		R0, R0, #UND_STACK_SIZE
+ 151              	
+ 152 0010 D7F021E3 		MSR		CPSR_c, #MODE_ABT|I_BIT|F_BIT
+ 153 0014 00D0A0E1 		MOV		SP, R0
+ 154 0018 040040E2 		SUB		R0, R0, #ABT_STACK_SIZE
+ 155              	
+ 156 001c D1F021E3 		MSR		CPSR_c, #MODE_FIQ|I_BIT|F_BIT
+ 157 0020 00D0A0E1 		MOV		SP, R0
+ 158 0024 800040E2 		SUB		R0, R0, #FIQ_STACK_SIZE
+ 159              	
+ 160 0028 D2F021E3 		MSR		CPSR_c, #MODE_IRQ|I_BIT|F_BIT
+ 161 002c 00D0A0E1 		MOV		SP, R0
+ 162 0030 800040E2 		SUB		R0, R0, #IRQ_STACK_SIZE
+ 163              	
+ 164 0034 D3F021E3 		MSR		CPSR_c, #MODE_SVC|I_BIT|F_BIT
+ 165 0038 00D0A0E1 		MOV		SP, R0
+ 166 003c 800040E2 		SUB		R0, R0, #SVC_STACK_SIZE
+ 167              	
+ 168 0040 DFF021E3 		MSR		CPSR_c, #MODE_SYS|I_BIT|F_BIT
+ 169 0044 00D0A0E1 		MOV		SP, R0
+ 170              	
+ 171              	/* ARM CPU must be in SUPERVISOR mode when code branches to main.c */
+ARM GAS  PROJECT/startup.s 			page 4
+
+
+ 172 0048 D3F021E3 		MSR		CPSR_c, #MODE_SVC|I_BIT|F_BIT
+ 173              	
+ 174              	/* Clear the .bss section
+ 175              	 *
+ 176              	 * - The .bss section contains (un-initialized) variables
+ 177              	 *
+ 178              	 * The __bss_beg__ (.LC1) and __bss_end__ (.LC2) addresses are resolved by
+ 179              	 * the linker.
+ 180              	 *
+ 181              	 * - see the "Literal Constant pool" defined in this file
+ 182              	 */
+ 183 004c 54109FE5 		LDR		R1, .LC1
+ 184 0050 54309FE5 		LDR		R3, .LC2
+ 185 0054 013053E0 		SUBS	R3, R3, R1
+ 186              	
+ 187              		/* Test to see if the .bss section is empty */
+ 188 0058 0300000A 		BEQ		end_clear_bss
+ 189 005c 0020A0E3 		MOV		R2, #0
+ 190              	
+ 191              	clear_bss_loop:
+ 192 0060 0120C1E4 		STRB	R2,	[R1], #1
+ 193 0064 013053E2 		SUBS	R3, R3, #1
+ 194 0068 FCFFFFCA 		BGT		clear_bss_loop
+ 195              	
+ 196              	end_clear_bss:
+ 197              	
+ 198              	/* Copy the .data section from ROM to RAM. The .data section contains
+ 199              	 * (initialized) static variables.
+ 200              	 *
+ 201              	 * The __data_beg__ (.LC3), __data_beg_src__ (.LC4) and __data_end__ (.LC5)
+ 202              	 * addresses are resolved by the linker
+ 203              	 *
+ 204              	 * - see the "Literal Constant pool" defined in this file
+ 205              	 */
+ 206 006c 3C109FE5 		LDR		R1, .LC3
+ 207 0070 3C209FE5 		LDR		R2, .LC4
+ 208 0074 3C309FE5 		LDR		R3, .LC5
+ 209 0078 013053E0 		SUBS	R3, R3, R1
+ 210              	
+ 211              		/* Is the .data section empty? */
+ 212 007c 0300000A 		BEQ		end_copy_data
+ 213              	
+ 214              	copy_data:
+ 215 0080 0140D2E4 		LDRB	R4, [R2], #1
+ 216 0084 0140C1E4 		STRB	R4, [R1], #1
+ 217 0088 013053E2 		SUBS	R3, R3, #1
+ 218 008c FBFFFFCA 		BGT		copy_data
+ 219              	
+ 220              	end_copy_data:
+ 221              	
+ 222              	/* ARM CPU register initialization before jumping to main.c
+ 223              	 *
+ 224              	 * ARM calling convention
+ 225              	 *	R0	- no argc to main.c
+ 226              	 *	R1	- no argv to main.c
+ 227              	 *	R7	- THUMB mode Frame Pointer
+ 228              	 *	R11	- ARM mode Frame Pointer
+ARM GAS  PROJECT/startup.s 			page 5
+
+
+ 229              	 */
+ 230 0090 0000A0E3 		MOV		R0, #0
+ 231 0094 0010A0E1 		MOV		R1, R0
+ 232 0098 0070A0E1 		MOV		R7, R0
+ 233 009c 00B0A0E1 		MOV		R11, R0
+ 234              	
+ 235              	/* Branch (jump) to main.c
+ 236              	 *
+ 237              	 * Initialization is completed in main.c
+ 238              	 */
+ 239 00a0 FEFFFFEA 		B	main
+ 240              	
+ 241              	/* Endless loop - is this used anywhere? */
+ 242              	endless_loop:
+ 243 00a4 FEFFFFEA 		b	endless_loop
+ 244              	
+ 245              	/* Literal Constant pool */
+ 246              		.align 0
+ 247              	
+ 248              	/* Start  and end of .bss section (in RAM)*/
+ 249              		.LC1:
+ 250 00a8 00000000 		.word	__bss_beg__
+ 251              	
+ 252              		.LC2:
+ 253 00ac 00000000 		.word	__bss_end__
+ 254              	
+ 255              	/* Start of .data section destination (in RAM) */
+ 256              		.LC3:
+ 257 00b0 00000000 		.word	__data_beg__
+ 258              	
+ 259              	/* Start and end of .data section source (in ROM) */
+ 260              		.LC4:
+ 261 00b4 00000000 		.word	__data_beg_src__
+ 262              	
+ 263              		.LC5:
+ 264 00b8 00000000 		.word	__data_end__
+ 265              	
+ 266              	/* End of stack (RAM) */
+ 267              		.LC6:
+ 268 00bc 00000000 		.word	__stack_end__
+ 269              	
+ 270              	/* Initialize default interrupt vector table (in ROM)
+ 271              	 *
+ 272              	 * - When the boot loarder prepares to execute user code from the FLASH it
+ 273              	 *   maps the interrupt vector table to the first 64 bytes of FLASH
+ 274              	 *
+ 275              	 *   - 0x00000000 to 0x0000003F
+ 276              	 *
+ 277              	 * - The first 64 bytes of the FLASH must be intialized with the vector table
+ 278              	 *   to be used when executing user code.
+ 279              	 *
+ 280              	 * - The boot loader boot loader will force execution of the code at the
+ 281              	 *   "reset vector" contained in the FLASH. This terminates execution of the
+ 282              	 *   boot loader and begins execution of the user code contained in the FLASH.
+ 283              	 *
+ 284              	 * NOTE: The boot loader uses address 0x00000014 (NOP below) to determine if
+ 285              	 *       the FLASH image containes valid code. FlashMagic computes a 2's
+ARM GAS  PROJECT/startup.s 			page 6
+
+
+ 286              	 *       complement checksum and stores it in this location when it loads the
+ 287              	 *       FLASH image.
+ 288              	 *
+ 289              	 * NOTE: The instruction "LDR PC, _name" loads the PC with the data contained
+ 290              	 *       in the address of symbol "_name". The data at "_name" specifies the
+ 291              	 *       address of the code that will execute when that exception condition
+ 292              	 *       occurs. The "interrupt vector jump table" appears below this code.
+ 293              	 */
+ 294              	 .section 	.startup, "ax"
+ 295              	 			.arm
+ 296              	 			.align 0
+ 297              	
+ 298              	/* The ARM interrupt vectors and vector addresss are as follows:
+ 299              	 *
+ 300              	 * - 0x00000000 = Reset
+ 301              	 * - 0x00000004 = Undefined exception
+ 302              	 * - 0x00000008 = Software Interrupt
+ 303              	 * - 0x0000000C = Prefetch abort exception
+ 304              	 * - 0x00000010 = Data abort exception
+ 305              	 * - 0x00000014 = NOP (FlashMagic wites a 2's compliment checksum here)
+ 306              	 * - 0x00000018 = IRQ
+ 307              	 * - 0x0000001C = FIQ
+ 308              	 */
+ 309 0000 FEFFFFEA 		B		_start
+ 310 0004 14F09FE5 		LDR		PC,	_undf
+ 311 0008 14F09FE5 		LDR		PC, _swi
+ 312 000c 14F09FE5 		LDR		PC, _pabt
+ 313 0010 14F09FE5 		LDR		PC, _dabt
+ 314 0014 0000A0E1 		NOP
+ 315              	
+ 316              	/* Load the PC with the interrupt vector address read from the NXP LPC2103
+ 317              	 * VICaddr register (0xFFFFF030).
+ 318              	 *
+ 319              	 * NOTE: The ARM7 CPU has a 3-stage pipeline (fetch, instruction decode,
+ 320              	 *       execute). As a result, the value in the PC is two instructions ahead
+ 321              	 *       of instruction execution (8 bytes becase this is 32-bit ARM code and
+ 322              	 *       each instruction is 4 bytes).
+ 323              	 *
+ 324              	 * NOTE: Look at the startup.lst file to see that the address of the
+ 325              	 *       "LDR PC, [PC, #-0xFF0]" instruction below is 0x00000018
+ 326              	 *
+ 327              	 * NOTE: (PC + 0x8) - 0xFF0 = 0x00000018 - 0x00000FF0 = 0xFFFFF030
+ 328              	 */
+ 329 0018 F0FF1FE5 		LDR		PC, [PC, #-0xFF0]
+ 330 001c 0CF09FE5 		LDR		PC, _fiq
+ 331              	
+ 332              	/* Interrupt vector jump table */
+ 333 0020 34000000 	_undf:	.word	__undf
+ 334 0024 00000000 	_swi:	.word	vPortYieldProcessor
+ 335 0028 38000000 	_pabt:	.word	__pabt
+ 336 002c 3C000000 	_dabt:	.word	__dabt
+ 337 0030 40000000 	_fiq:	.word	__fiq
+ 338              	
+ 339              	/* Null-loops for unused interrupts
+ 340              	 *
+ 341              	 * NOTE: could branch to "endless_loop" but this approach gives an explicit
+ 342              	 *       endless loop for each exception type. This might be helpful in debug.
+ARM GAS  PROJECT/startup.s 			page 7
+
+
+ 343              	 */
+ 344 0034 FEFFFFEA 	__undf: b .
+ 345 0038 FEFFFFEA 	__pabt: b .
+ 346 003c FEFFFFEA 	__dabt: b .
+ 347 0040 FEFFFFEA 	__fiq:  b .
+ 348              	
+ 349              	/* End statup.s */
+ARM GAS  PROJECT/startup.s 			page 8
+
+
+DEFINED SYMBOLS
+   PROJECT/startup.s:131    .text:00000000 start
+   PROJECT/startup.s:242    .text:000000a4 endless_loop
+   PROJECT/startup.s:85     *ABS*:00000004 UND_STACK_SIZE
+   PROJECT/startup.s:86     *ABS*:00000004 ABT_STACK_SIZE
+   PROJECT/startup.s:87     *ABS*:00000080 FIQ_STACK_SIZE
+   PROJECT/startup.s:88     *ABS*:00000080 IRQ_STACK_SIZE
+   PROJECT/startup.s:89     *ABS*:00000080 SVC_STACK_SIZE
+   PROJECT/startup.s:92     *ABS*:00000010 MODE_USR
+   PROJECT/startup.s:93     *ABS*:00000011 MODE_FIQ
+   PROJECT/startup.s:94     *ABS*:00000012 MODE_IRQ
+   PROJECT/startup.s:95     *ABS*:00000013 MODE_SVC
+   PROJECT/startup.s:96     *ABS*:00000017 MODE_ABT
+   PROJECT/startup.s:97     *ABS*:0000001b MODE_UND
+   PROJECT/startup.s:98     *ABS*:0000001f MODE_SYS
+   PROJECT/startup.s:108    *ABS*:00000080 I_BIT
+   PROJECT/startup.s:109    *ABS*:00000040 F_BIT
+   PROJECT/startup.s:113    .text:00000000 $a
+   PROJECT/startup.s:132    .text:00000000 _start
+   PROJECT/startup.s:133    .text:00000000 _mainCRTStartup
+   PROJECT/startup.s:196    .text:0000006c end_clear_bss
+   PROJECT/startup.s:191    .text:00000060 clear_bss_loop
+   PROJECT/startup.s:220    .text:00000090 end_copy_data
+   PROJECT/startup.s:214    .text:00000080 copy_data
+   PROJECT/startup.s:250    .text:000000a8 $d
+   PROJECT/startup.s:295    .startup:00000000 $a
+   PROJECT/startup.s:333    .startup:00000020 _undf
+   PROJECT/startup.s:334    .startup:00000024 _swi
+   PROJECT/startup.s:335    .startup:00000028 _pabt
+   PROJECT/startup.s:336    .startup:0000002c _dabt
+   PROJECT/startup.s:337    .startup:00000030 _fiq
+   PROJECT/startup.s:333    .startup:00000020 $d
+   PROJECT/startup.s:344    .startup:00000034 __undf
+   PROJECT/startup.s:345    .startup:00000038 __pabt
+   PROJECT/startup.s:346    .startup:0000003c __dabt
+   PROJECT/startup.s:347    .startup:00000040 __fiq
+   PROJECT/startup.s:344    .startup:00000034 $a
+
+UNDEFINED SYMBOLS
+main
+__bss_beg__
+__bss_end__
+__data_beg__
+__data_beg_src__
+__data_end__
+__stack_end__
+vPortYieldProcessor

@@ -1,0 +1,489 @@
+Archive member included because of file (symbol)
+
+e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+                              ./FreeRTOS/Source/queue.o (memcpy)
+e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+                              ./FreeRTOS/Source/tasks.o (memset)
+e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+                              ./FreeRTOS/Source/tasks.o (strncpy)
+
+Allocating common symbols
+Common symbol       size              file
+
+pxI2C_RQ            0x4               PROJECT/i2c.o
+xCamI2C             0x10              PROJECT/cam.o
+ucI2C_busy          0x1               PROJECT/i2c.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+flash            0x00000000         0x00008000
+ram              0x40000000         0x00002000
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD ./FreeRTOS/Source/portable/portISR.o
+LOAD ./PROJECT/i2cISR.o
+LOAD PROJECT/main.o
+LOAD PROJECT/led.o
+LOAD PROJECT/i2c.o
+LOAD PROJECT/cam.o
+LOAD ./FreeRTOS/Source/tasks.o
+LOAD ./FreeRTOS/Source/queue.o
+LOAD ./FreeRTOS/Source/list.o
+LOAD ./FreeRTOS/Source/portable/MemMang/heap_2.o
+LOAD ./FreeRTOS/Source/portable/port.o
+LOAD PROJECT/startup.o
+START GROUP
+LOAD e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/interwork\libgcc.a
+LOAD e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a
+LOAD e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libc.a
+END GROUP
+                0x40001ffc                __stack_end__ = 0x40001ffc
+                0x00000000                . = 0x0
+
+startup         0x00000000       0x44
+ *(.startup)
+ .startup       0x00000000       0x44 PROJECT/startup.o
+
+prog            0x00000048     0x2900
+ *(.text)
+ .text.stub     0x00000048       0x38 linker stubs
+ .text          0x00000080      0x2bc ./FreeRTOS/Source/portable/portISR.o
+                0x00000190                vTickISR
+                0x000002d0                vPortExitCritical
+                0x000000e4                vPortYieldProcessor
+                0x0000025c                vPortDisableInterruptsFromThumb
+                0x00000080                vPortISRStartFirstTask
+                0x00000274                vPortEnableInterruptsFromThumb
+                0x0000028c                vPortEnterCritical
+ .text          0x0000033c      0x144 ./PROJECT/i2cISR.o
+                0x0000033c                vI2C_ISR_Wrapper
+                0x000003e4                vI2C_ISR
+ .text          0x00000480       0xcc PROJECT/main.o
+                0x00000480                main
+ .text          0x0000054c       0x7c PROJECT/led.o
+                0x0000054c                vStartLEDTask
+                0x0000057c                vLEDTask
+ .text          0x000005c8      0x7f0 PROJECT/i2c.o
+                0x00000c78                ucI2C_WriteWord
+                0x000005c8                vStartI2CTask
+                0x00000ba8                ucI2C_ReceiveByte
+                0x00000d24                prvI2C_Transaction
+                0x00000a50                vI2C_Init
+                0x00000b64                ucI2C_SendByte
+                0x00000bdc                ucI2C_WriteByte
+                0x00000b20                ucI2C_Quick
+                0x000005f8                vI2CTask
+                0x00000ce0                ucI2C_ReadWord
+                0x00000c34                ucI2C_ReadByte
+ .text          0x00000db8      0x188 PROJECT/cam.o
+                0x00000de8                vCAMTask
+                0x00000db8                vStartCAMTask
+                0x00000eac                vCAM_Init
+ .text          0x00000f40      0x8cc ./FreeRTOS/Source/tasks.o
+                0x0000117c                vTaskEndScheduler
+                0x0000149c                vTaskPlaceOnEventList
+                0x000012d0                xTaskGetTickCount
+                0x00001520                xTaskRemoveFromEventList
+                0x00001608                xTaskCheckForTimeOut
+                0x0000119c                vTaskSuspendAll
+                0x00001404                vTaskSwitchContext
+                0x000012f8                uxTaskGetNumberOfTasks
+                0x00001310                vTaskIncrementTick
+                0x000011b8                xTaskResumeAll
+                0x00001128                vTaskStartScheduler
+                0x00001688                vTaskMissedYield
+                0x00000f40                xTaskCreate
+                0x00001098                vTaskDelay
+                0x000015dc                vTaskSetTimeOutState
+ .text          0x0000180c      0x6b8 ./FreeRTOS/Source/queue.o
+                0x000019ec                xQueueGenericSendFromISR
+                0x0000180c                xQueueCreate
+                0x00001c68                vQueueDelete
+                0x000018d0                xQueueGenericSend
+                0x00001bb0                xQueueReceiveFromISR
+                0x00001e9c                xQueueIsQueueFullFromISR
+                0x00001c28                uxQueueMessagesWaiting
+                0x00001a64                xQueueGenericReceive
+                0x00001c4c                uxQueueMessagesWaitingFromISR
+                0x00001e48                xQueueIsQueueEmptyFromISR
+ .text          0x00001ec4      0x168 ./FreeRTOS/Source/list.o
+                0x00001f1c                vListInsertEnd
+                0x00001fdc                vListRemove
+                0x00001f04                vListInitialiseItem
+                0x00001ec4                vListInitialise
+                0x00001f6c                vListInsert
+ .text          0x0000202c      0x1b0 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+                0x00002174                vPortFree
+                0x0000202c                pvPortMalloc
+ .text          0x000021dc      0x1d4 ./FreeRTOS/Source/portable/port.o
+                0x00002310                xPortStartScheduler
+                0x00002328                vPortEndScheduler
+                0x000021dc                pxPortInitialiseStack
+ .text          0x000023b0       0xc0 PROJECT/startup.o
+                0x000023b0                start
+                0x00002454                endless_loop
+ .text          0x00002470       0xfc e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+                0x00002470                memcpy
+ .text          0x0000256c      0x108 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+                0x0000256c                memset
+ .text          0x00002674      0x10c e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+                0x00002674                strncpy
+ *(.rodata)
+ .rodata        0x00002780        0x4 PROJECT/led.o
+ .rodata        0x00002784      0x184 PROJECT/i2c.o
+ .rodata        0x00002908        0x4 PROJECT/cam.o
+ .rodata        0x0000290c        0x8 ./FreeRTOS/Source/tasks.o
+ .rodata        0x00002914        0x2 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ *(.rodata*)
+ *(.glue_7)
+ *fill*         0x00002916        0x2 00
+ .glue_7        0x00002918        0x0 ./FreeRTOS/Source/portable/portISR.o
+ .glue_7        0x00002918        0x0 ./PROJECT/i2cISR.o
+ .glue_7        0x00002918        0x0 PROJECT/main.o
+ .glue_7        0x00002918        0x0 PROJECT/led.o
+ .glue_7        0x00002918        0x0 PROJECT/i2c.o
+ .glue_7        0x00002918        0x0 PROJECT/cam.o
+ .glue_7        0x00002918        0x0 ./FreeRTOS/Source/tasks.o
+ .glue_7        0x00002918        0x0 ./FreeRTOS/Source/queue.o
+ .glue_7        0x00002918        0x0 ./FreeRTOS/Source/list.o
+ .glue_7        0x00002918        0x0 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .glue_7        0x00002918        0x0 ./FreeRTOS/Source/portable/port.o
+ .glue_7        0x00002918        0x0 PROJECT/startup.o
+ .glue_7        0x00002918        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .glue_7        0x00002918        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .glue_7        0x00002918       0x30 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+                0x0000293c                __main_from_arm
+                0x00002930                __xQueueGenericSendFromISR_from_arm
+                0x00002924                __vTaskIncrementTick_from_arm
+                0x00002918                __vTaskSwitchContext_from_arm
+ *(.glue_7t)
+ .glue_7t       0x00002948        0x0 ./FreeRTOS/Source/portable/portISR.o
+ .glue_7t       0x00002948        0x0 ./PROJECT/i2cISR.o
+ .glue_7t       0x00002948        0x0 PROJECT/main.o
+ .glue_7t       0x00002948        0x0 PROJECT/led.o
+ .glue_7t       0x00002948        0x0 PROJECT/i2c.o
+ .glue_7t       0x00002948        0x0 PROJECT/cam.o
+ .glue_7t       0x00002948        0x0 ./FreeRTOS/Source/tasks.o
+ .glue_7t       0x00002948        0x0 ./FreeRTOS/Source/queue.o
+ .glue_7t       0x00002948        0x0 ./FreeRTOS/Source/list.o
+ .glue_7t       0x00002948        0x0 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .glue_7t       0x00002948        0x0 ./FreeRTOS/Source/portable/port.o
+ .glue_7t       0x00002948        0x0 PROJECT/startup.o
+ .glue_7t       0x00002948        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .glue_7t       0x00002948        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .glue_7t       0x00002948        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+                0x00002948                __end_of_text__ = .
+
+.vfp11_veneer   0x00002948        0x0
+ .vfp11_veneer  0x00002948        0x0 ./FreeRTOS/Source/portable/portISR.o
+ .vfp11_veneer  0x00002948        0x0 ./PROJECT/i2cISR.o
+ .vfp11_veneer  0x00002948        0x0 PROJECT/main.o
+ .vfp11_veneer  0x00002948        0x0 PROJECT/led.o
+ .vfp11_veneer  0x00002948        0x0 PROJECT/i2c.o
+ .vfp11_veneer  0x00002948        0x0 PROJECT/cam.o
+ .vfp11_veneer  0x00002948        0x0 ./FreeRTOS/Source/tasks.o
+ .vfp11_veneer  0x00002948        0x0 ./FreeRTOS/Source/queue.o
+ .vfp11_veneer  0x00002948        0x0 ./FreeRTOS/Source/list.o
+ .vfp11_veneer  0x00002948        0x0 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .vfp11_veneer  0x00002948        0x0 ./FreeRTOS/Source/portable/port.o
+ .vfp11_veneer  0x00002948        0x0 PROJECT/startup.o
+ .vfp11_veneer  0x00002948        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .vfp11_veneer  0x00002948        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .vfp11_veneer  0x00002948        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.v4_bx          0x00002948        0x0
+ .v4_bx         0x00002948        0x0 ./FreeRTOS/Source/portable/portISR.o
+ .v4_bx         0x00002948        0x0 ./PROJECT/i2cISR.o
+ .v4_bx         0x00002948        0x0 PROJECT/main.o
+ .v4_bx         0x00002948        0x0 PROJECT/led.o
+ .v4_bx         0x00002948        0x0 PROJECT/i2c.o
+ .v4_bx         0x00002948        0x0 PROJECT/cam.o
+ .v4_bx         0x00002948        0x0 ./FreeRTOS/Source/tasks.o
+ .v4_bx         0x00002948        0x0 ./FreeRTOS/Source/queue.o
+ .v4_bx         0x00002948        0x0 ./FreeRTOS/Source/list.o
+ .v4_bx         0x00002948        0x0 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .v4_bx         0x00002948        0x0 ./FreeRTOS/Source/portable/port.o
+ .v4_bx         0x00002948        0x0 PROJECT/startup.o
+ .v4_bx         0x00002948        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .v4_bx         0x00002948        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .v4_bx         0x00002948        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.data           0x40000000        0x4 load address 0x00002948
+                0x40000000                __data_beg__ = .
+                0x00002948                __data_beg_src__ = __end_of_text__
+ *(.data)
+ .data          0x40000000        0x4 ./FreeRTOS/Source/portable/portISR.o
+                0x40000000                ulCriticalNesting
+ .data          0x40000004        0x0 ./PROJECT/i2cISR.o
+ .data          0x40000004        0x0 PROJECT/main.o
+ .data          0x40000004        0x0 PROJECT/led.o
+ .data          0x40000004        0x0 PROJECT/i2c.o
+ .data          0x40000004        0x0 PROJECT/cam.o
+ .data          0x40000004        0x0 ./FreeRTOS/Source/tasks.o
+ .data          0x40000004        0x0 ./FreeRTOS/Source/queue.o
+ .data          0x40000004        0x0 ./FreeRTOS/Source/list.o
+ .data          0x40000004        0x0 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .data          0x40000004        0x0 ./FreeRTOS/Source/portable/port.o
+ .data          0x40000004        0x0 PROJECT/startup.o
+ .data          0x40000004        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .data          0x40000004        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .data          0x40000004        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+                0x40000004                __data_end__ = .
+
+.bss            0x40000004     0x151c
+                0x40000004                __bss_beg__ = .
+ *(.bss)
+ .bss           0x40000004        0x0 ./FreeRTOS/Source/portable/portISR.o
+ .bss           0x40000004        0x4 ./PROJECT/i2cISR.o
+ .bss           0x40000008        0x0 PROJECT/main.o
+ .bss           0x40000008        0x4 PROJECT/led.o
+ .bss           0x4000000c       0x10 PROJECT/i2c.o
+                0x4000000c                xI2CSemaphore
+ .bss           0x4000001c        0x4 PROJECT/cam.o
+ .bss           0x40000020       0xd4 ./FreeRTOS/Source/tasks.o
+                0x40000020                pxCurrentTCB
+ .bss           0x400000f4        0x0 ./FreeRTOS/Source/queue.o
+ .bss           0x400000f4        0x0 ./FreeRTOS/Source/list.o
+ .bss           0x400000f4     0x1414 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .bss           0x40001508        0x0 ./FreeRTOS/Source/portable/port.o
+ .bss           0x40001508        0x0 PROJECT/startup.o
+ .bss           0x40001508        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .bss           0x40001508        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .bss           0x40001508        0x0 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+ COMMON         0x40001508        0x5 PROJECT/i2c.o
+                0x40001508                pxI2C_RQ
+                0x4000150c                ucI2C_busy
+ *fill*         0x4000150d        0x3 00
+ COMMON         0x40001510       0x10 PROJECT/cam.o
+                0x40001510                xCamI2C
+                0x40001520                . = ALIGN (0x4)
+                0x40001520                . = ALIGN (0x4)
+                0x40001520                _end = .
+                0x40001520                _bss_end__ = .
+                0x40001520                __bss_end__ = .
+                0x40001520                __end__ = .
+                0x40001520                PROVIDE (end, .)
+OUTPUT(camera.elf elf32-littlearm)
+
+.debug_abbrev   0x00000000      0xb84
+ .debug_abbrev  0x00000000       0x8b ./FreeRTOS/Source/portable/portISR.o
+ .debug_abbrev  0x0000008b       0xa8 ./PROJECT/i2cISR.o
+ .debug_abbrev  0x00000133       0x5d PROJECT/main.o
+ .debug_abbrev  0x00000190       0x66 PROJECT/led.o
+ .debug_abbrev  0x000001f6      0x12a PROJECT/i2c.o
+ .debug_abbrev  0x00000320       0xdb PROJECT/cam.o
+ .debug_abbrev  0x000003fb      0x194 ./FreeRTOS/Source/tasks.o
+ .debug_abbrev  0x0000058f      0x152 ./FreeRTOS/Source/queue.o
+ .debug_abbrev  0x000006e1       0xc8 ./FreeRTOS/Source/list.o
+ .debug_abbrev  0x000007a9      0x12a ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .debug_abbrev  0x000008d3       0xd6 ./FreeRTOS/Source/portable/port.o
+ .debug_abbrev  0x000009a9       0xa2 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .debug_abbrev  0x00000a4b       0xa3 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .debug_abbrev  0x00000aee       0x96 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.debug_info     0x00000000     0x225b
+ .debug_info    0x00000000       0xf6 ./FreeRTOS/Source/portable/portISR.o
+ .debug_info    0x000000f6       0xd3 ./PROJECT/i2cISR.o
+ .debug_info    0x000001c9       0x72 PROJECT/main.o
+ .debug_info    0x0000023b       0x9e PROJECT/led.o
+ .debug_info    0x000002d9      0x494 PROJECT/i2c.o
+ .debug_info    0x0000076d      0x16d PROJECT/cam.o
+ .debug_info    0x000008da      0x87b ./FreeRTOS/Source/tasks.o
+ .debug_info    0x00001155      0x726 ./FreeRTOS/Source/queue.o
+ .debug_info    0x0000187b      0x2ad ./FreeRTOS/Source/list.o
+ .debug_info    0x00001b28      0x270 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .debug_info    0x00001d98      0x142 ./FreeRTOS/Source/portable/port.o
+ .debug_info    0x00001eda      0x142 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .debug_info    0x0000201c      0x115 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .debug_info    0x00002131      0x12a e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.debug_line     0x00000000      0xc56
+ .debug_line    0x00000000       0x84 ./FreeRTOS/Source/portable/portISR.o
+ .debug_line    0x00000084       0x86 ./PROJECT/i2cISR.o
+ .debug_line    0x0000010a       0x5b PROJECT/main.o
+ .debug_line    0x00000165       0x45 PROJECT/led.o
+ .debug_line    0x000001aa      0x192 PROJECT/i2c.o
+ .debug_line    0x0000033c       0x80 PROJECT/cam.o
+ .debug_line    0x000003bc      0x1ac ./FreeRTOS/Source/tasks.o
+ .debug_line    0x00000568      0x1c4 ./FreeRTOS/Source/queue.o
+ .debug_line    0x0000072c       0xc0 ./FreeRTOS/Source/list.o
+ .debug_line    0x000007ec       0xcb ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .debug_line    0x000008b7       0xb4 ./FreeRTOS/Source/portable/port.o
+ .debug_line    0x0000096b       0xfb e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .debug_line    0x00000a66       0xfc e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .debug_line    0x00000b62       0xf4 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.debug_frame    0x00000000      0x9d8
+ .debug_frame   0x00000000       0xb0 ./FreeRTOS/Source/portable/portISR.o
+ .debug_frame   0x000000b0       0x40 ./PROJECT/i2cISR.o
+ .debug_frame   0x000000f0       0x48 PROJECT/main.o
+ .debug_frame   0x00000138       0x50 PROJECT/led.o
+ .debug_frame   0x00000188      0x170 PROJECT/i2c.o
+ .debug_frame   0x000002f8       0x6c PROJECT/cam.o
+ .debug_frame   0x00000364      0x27c ./FreeRTOS/Source/tasks.o
+ .debug_frame   0x000005e0      0x1f0 ./FreeRTOS/Source/queue.o
+ .debug_frame   0x000007d0       0xb0 ./FreeRTOS/Source/list.o
+ .debug_frame   0x00000880       0x50 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .debug_frame   0x000008d0       0x88 ./FreeRTOS/Source/portable/port.o
+ .debug_frame   0x00000958       0x2c e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .debug_frame   0x00000984       0x2c e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .debug_frame   0x000009b0       0x28 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.debug_loc      0x00000000     0x119c
+ .debug_loc     0x00000000       0x7e ./FreeRTOS/Source/portable/portISR.o
+ .debug_loc     0x0000007e       0x2a ./PROJECT/i2cISR.o
+ .debug_loc     0x000000a8       0x56 PROJECT/main.o
+ .debug_loc     0x000000fe       0x6e PROJECT/led.o
+ .debug_loc     0x0000016c      0x25d PROJECT/i2c.o
+ .debug_loc     0x000003c9       0x99 PROJECT/cam.o
+ .debug_loc     0x00000462      0x410 ./FreeRTOS/Source/tasks.o
+ .debug_loc     0x00000872      0x339 ./FreeRTOS/Source/queue.o
+ .debug_loc     0x00000bab      0x113 ./FreeRTOS/Source/list.o
+ .debug_loc     0x00000cbe       0x6e ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .debug_loc     0x00000d2c       0xc4 ./FreeRTOS/Source/portable/port.o
+ .debug_loc     0x00000df0      0x130 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .debug_loc     0x00000f20      0x154 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .debug_loc     0x00001074      0x128 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.debug_pubnames
+                0x00000000      0x68b
+ .debug_pubnames
+                0x00000000       0xdc ./FreeRTOS/Source/portable/portISR.o
+ .debug_pubnames
+                0x000000dc       0x34 ./PROJECT/i2cISR.o
+ .debug_pubnames
+                0x00000110       0x1b PROJECT/main.o
+ .debug_pubnames
+                0x0000012b       0x31 PROJECT/led.o
+ .debug_pubnames
+                0x0000015c      0x10b PROJECT/i2c.o
+ .debug_pubnames
+                0x00000267       0x4b PROJECT/cam.o
+ .debug_pubnames
+                0x000002b2      0x174 ./FreeRTOS/Source/tasks.o
+ .debug_pubnames
+                0x00000426      0x111 ./FreeRTOS/Source/queue.o
+ .debug_pubnames
+                0x00000537       0x71 ./FreeRTOS/Source/list.o
+ .debug_pubnames
+                0x000005a8       0x31 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .debug_pubnames
+                0x000005d9       0x5a ./FreeRTOS/Source/portable/port.o
+ .debug_pubnames
+                0x00000633       0x1d e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .debug_pubnames
+                0x00000650       0x1d e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .debug_pubnames
+                0x0000066d       0x1e e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.debug_aranges  0x00000000      0x1c0
+ .debug_aranges
+                0x00000000       0x20 ./FreeRTOS/Source/portable/portISR.o
+ .debug_aranges
+                0x00000020       0x20 ./PROJECT/i2cISR.o
+ .debug_aranges
+                0x00000040       0x20 PROJECT/main.o
+ .debug_aranges
+                0x00000060       0x20 PROJECT/led.o
+ .debug_aranges
+                0x00000080       0x20 PROJECT/i2c.o
+ .debug_aranges
+                0x000000a0       0x20 PROJECT/cam.o
+ .debug_aranges
+                0x000000c0       0x20 ./FreeRTOS/Source/tasks.o
+ .debug_aranges
+                0x000000e0       0x20 ./FreeRTOS/Source/queue.o
+ .debug_aranges
+                0x00000100       0x20 ./FreeRTOS/Source/list.o
+ .debug_aranges
+                0x00000120       0x20 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .debug_aranges
+                0x00000140       0x20 ./FreeRTOS/Source/portable/port.o
+ .debug_aranges
+                0x00000160       0x20 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .debug_aranges
+                0x00000180       0x20 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .debug_aranges
+                0x000001a0       0x20 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.debug_str      0x00000000      0xef1
+ .debug_str     0x00000000       0xff ./FreeRTOS/Source/portable/portISR.o
+                                0x11a (size before relaxing)
+ .debug_str     0x000000ff       0x7b ./PROJECT/i2cISR.o
+                                 0xda (size before relaxing)
+ .debug_str     0x0000017a       0x25 PROJECT/main.o
+                                 0x73 (size before relaxing)
+ .debug_str     0x0000019f       0x49 PROJECT/led.o
+                                 0x89 (size before relaxing)
+ .debug_str     0x000001e8      0x170 PROJECT/i2c.o
+                                0x20e (size before relaxing)
+ .debug_str     0x00000358       0x38 PROJECT/cam.o
+                                 0xe5 (size before relaxing)
+ .debug_str     0x00000390      0x500 ./FreeRTOS/Source/tasks.o
+                                0x5ac (size before relaxing)
+ .debug_str     0x00000890      0x2b3 ./FreeRTOS/Source/queue.o
+                                0x46e (size before relaxing)
+ .debug_str     0x00000b43       0xaa ./FreeRTOS/Source/list.o
+                                0x1f6 (size before relaxing)
+ .debug_str     0x00000bed      0x11c ./FreeRTOS/Source/portable/MemMang/heap_2.o
+                                0x1dc (size before relaxing)
+ .debug_str     0x00000d09       0x97 ./FreeRTOS/Source/portable/port.o
+                                0x16b (size before relaxing)
+ .debug_str     0x00000da0       0xb5 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+                                0x151 (size before relaxing)
+ .debug_str     0x00000e55       0x57 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+                                0x13e (size before relaxing)
+ .debug_str     0x00000eac       0x45 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+                                0x154 (size before relaxing)
+
+.comment        0x00000000       0xfc
+ .comment       0x00000000       0x12 ./FreeRTOS/Source/portable/portISR.o
+ .comment       0x00000012       0x12 ./PROJECT/i2cISR.o
+ .comment       0x00000024       0x12 PROJECT/main.o
+ .comment       0x00000036       0x12 PROJECT/led.o
+ .comment       0x00000048       0x12 PROJECT/i2c.o
+ .comment       0x0000005a       0x12 PROJECT/cam.o
+ .comment       0x0000006c       0x12 ./FreeRTOS/Source/tasks.o
+ .comment       0x0000007e       0x12 ./FreeRTOS/Source/queue.o
+ .comment       0x00000090       0x12 ./FreeRTOS/Source/list.o
+ .comment       0x000000a2       0x12 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .comment       0x000000b4       0x12 ./FreeRTOS/Source/portable/port.o
+ .comment       0x000000c6       0x12 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .comment       0x000000d8       0x12 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .comment       0x000000ea       0x12 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
+
+.ARM.attributes
+                0x00000000       0x10
+ .ARM.attributes
+                0x00000000       0x10 ./FreeRTOS/Source/portable/portISR.o
+ .ARM.attributes
+                0x00000010       0x10 ./PROJECT/i2cISR.o
+ .ARM.attributes
+                0x00000020       0x10 PROJECT/main.o
+ .ARM.attributes
+                0x00000030       0x10 PROJECT/led.o
+ .ARM.attributes
+                0x00000040       0x10 PROJECT/i2c.o
+ .ARM.attributes
+                0x00000050       0x10 PROJECT/cam.o
+ .ARM.attributes
+                0x00000060       0x10 ./FreeRTOS/Source/tasks.o
+ .ARM.attributes
+                0x00000070       0x10 ./FreeRTOS/Source/queue.o
+ .ARM.attributes
+                0x00000080       0x10 ./FreeRTOS/Source/list.o
+ .ARM.attributes
+                0x00000090       0x10 ./FreeRTOS/Source/portable/MemMang/heap_2.o
+ .ARM.attributes
+                0x000000a0       0x10 ./FreeRTOS/Source/portable/port.o
+ .ARM.attributes
+                0x000000b0       0x10 PROJECT/startup.o
+ .ARM.attributes
+                0x000000c0       0x10 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memcpy.o)
+ .ARM.attributes
+                0x000000d0       0x10 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-memset.o)
+ .ARM.attributes
+                0x000000e0       0x10 e:/program files/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib/interwork\libg.a(lib_a-strncpy.o)
